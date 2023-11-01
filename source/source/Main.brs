@@ -6,20 +6,14 @@
 '*************************************************************
 
 sub Main()
-    print "in showChannelSGScreen"
-    'Indicate this is a Roku SceneGraph application'
-    screen = CreateObject("roSGScreen")
-    m.port = CreateObject("roMessagePort")
-    screen.setMessagePort(m.port)
-
-    'Create a scene and load /components/helloworld.xml'
-    scene = screen.CreateScene("HelloWorld")
-    screen.show()
-
-    sendAddress = CreateObject("roSocketAddress")
-    sendAddress.SetAddress("devsocket.stedi.me:54321")
+    address = CreateObject("roSocketAddress")
+    address.SetAddress("devsocket.stedi.me")
+    address.SetPort(54321)
     socket = CreateObject("roStreamSocket")
-    socket.setSendToAddress(sendAddress)
+    socket.SetSendToAddress(address)
+    screen = CreateObject("roScreen", true, 720, 480)
+    fontreg = CreateObject("roFontRegistry")
+    font = fontreg.GetDefaultFont()
     If socket.Connect()
         
         socket.sendStr("76314c33-3065-4505-bad9-e01f0b9091fa:agc768@ensign.edu")
@@ -31,7 +25,14 @@ sub Main()
                 ' Check if any data was received
                 if data <> ""
                     ' Display the received data in the terminal
-                    print data
+                    animate = true
+                    screen.Clear(&h000000FF)
+                    w = font.GetOneLineWidth(data, screen.GetWidth())
+                    h = font.GetOneLineHeight()
+                    screen.DrawText(data, 0, 0, &hFFFFFFFF, font)
+                    screen.SwapBuffers()
+                    Sleep(100)
+                    PRINT data
             end if
             
         end while
